@@ -12,7 +12,7 @@ import {
 import { FaWhatsapp } from "react-icons/fa";
 import logo from "../assets/logo.png";
 
-const Navbar = () => {
+const Navbar = ({ onConsultationClick }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navClass = ({ isActive }) =>
@@ -141,10 +141,13 @@ const Navbar = () => {
               <span className="text-sm font-medium">Call Us</span>
             </a>
 
-            <button className="flex items-center gap-2 bg-[#D4A017] text-black font-medium px-4 py-2 rounded-lg hover:scale-105 transition">
+            <a
+              href="/#consultation"
+              className="flex items-center gap-2 bg-[#D4A017] text-black font-medium px-4 py-2 rounded-lg hover:scale-105 transition"
+            >
               <Calendar size={16} />
               <span className="text-sm">Consultation</span>
-            </button>
+            </a>
           </div>
         </div>
 

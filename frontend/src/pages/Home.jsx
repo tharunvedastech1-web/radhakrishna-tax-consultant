@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+import ScheduleConsultationPage from "../components/ScheduleConsultationPage";
+
+import React, { useEffect, useState, useRef } from "react";
 import {
   FileText,
   Building2,
@@ -24,14 +26,20 @@ import {
 
 
 const Home = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
 
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [showConsultation, setShowConsultation] = useState(false);
+
+  const consultationSectionRef = useRef(null);
+  const scheduleButtonRef = useRef(null);
   const heroSlides = [
     {
       badge: "Trusted Financial Consultancy",
       title: "Expert Tax Filing & Compliance Services",
       desc: "Simplify income tax filing, GST compliance, and documentation with trusted professional guidance for individuals and businesses.",
       button: "Book Consultation",
+      buttonLink: "#consultation",
+      learnMoreLink: "#tax-details",
       stats: ["500+ Tax Filings", "98% Client Satisfaction", "24/7 Support"],
       icon: <Calculator size={42} />,
     },
@@ -40,6 +48,8 @@ const Home = () => {
       title: "Launch & Grow Your Business Confidently",
       desc: "From startup registration to GST, MSME, and compliance support — we help you establish your business with confidence.",
       button: "Start Registration",
+      buttonLink: "#consultation",
+      learnMoreLink: "#registration-details",
       stats: ["100+ Registrations", "Fast Documentation", "Expert Guidance"],
       icon: <Building2 size={42} />,
     },
@@ -48,6 +58,8 @@ const Home = () => {
       title: "Accounting & Financial Growth Support",
       desc: "Professional bookkeeping, accounting, and business financial advisory services designed for long-term success.",
       button: "Talk To Expert",
+      buttonLink: "#contact",
+      learnMoreLink: "#advisory-details",
       stats: ["Reliable Advisory", "Growth Planning", "Dedicated Support"],
       icon: <TrendingUp size={42} />,
     },
@@ -60,6 +72,39 @@ const Home = () => {
 
     return () => clearInterval(timer);
   }, []);
+
+  const scrollToScheduleButton = () => {
+    const button = scheduleButtonRef.current;
+
+    if (button) {
+      const rect = button.getBoundingClientRect();
+      const absoluteTop = rect.top + window.scrollY;
+
+      window.scrollTo({
+        top: absoluteTop - 120,
+        behavior: "smooth",
+      });
+    }
+  };
+  // useEffect(() => {
+  //   if (window.location.hash === "#consultation") {
+  //     setTimeout(() => {
+  //       const button = scheduleButtonRef.current;
+
+  //       if (button) {
+  //         const y =
+  //           button.getBoundingClientRect().top +
+  //           window.pageYOffset -
+  //           100;
+
+  //         window.scrollTo({
+  //           top: y,
+  //           behavior: "smooth",
+  //         });
+  //       }
+  //     }, 300);
+  //   }
+  // }, []);
 
   const services = [
     {
@@ -115,6 +160,14 @@ const Home = () => {
     },
   ];
 
+  if (showConsultation) {
+    return (
+      <ScheduleConsultationPage
+        onBack={() => setShowConsultation(false)}
+      />
+    );
+  }
+
   return (
     <div className="bg-[#F6F4EF] text-[#1E293B]">
       {/* HERO */}
@@ -143,14 +196,21 @@ const Home = () => {
                   </p>
 
                   <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                    <button className="px-8 py-4 bg-[#D4AF37] text-black font-bold rounded-xl">
+                    <button
+                      ref={scheduleButtonRef}
+                      onClick={() => setShowConsultation(true)}
+                      className="px-8 py-4 bg-[#D4AF37] text-black font-bold rounded-xl inline-flex items-center justify-center"
+                    >
                       {slide.button}
                     </button>
 
-                    <button className="px-8 py-4 border border-white/30 rounded-xl flex items-center gap-3 hover:bg-white/10 transition">
+                    <a
+                      href={slide.learnMoreLink}
+                      className="px-8 py-4 border border-white/30 rounded-xl flex items-center gap-3 hover:bg-white/10 transition"
+                    >
                       Learn More
                       <ArrowRight />
-                    </button>
+                    </a>
                   </div>
 
                   <div className="grid grid-cols-3 gap-4 mt-10">
@@ -211,13 +271,90 @@ const Home = () => {
             <button
               key={index}
               onClick={() => setCurrentSlide(index)}
-              className={`transition-all ${
-                currentSlide === index
-                  ? "w-10 h-3 bg-[#D4AF37] rounded-full"
-                  : "w-3 h-3 bg-white/40 rounded-full"
-              }`}
+              className={`transition-all ${currentSlide === index
+                ? "w-10 h-3 bg-[#D4AF37] rounded-full"
+                : "w-3 h-3 bg-white/40 rounded-full"
+                }`}
             />
           ))}
+        </div>
+      </section>
+
+      {/* LEARN MORE DETAILS */}
+      <section className="py-20 bg-[#F6F4EF]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <p className="uppercase tracking-[0.3em] text-[#D4AF37] font-semibold">
+              Learn More
+            </p>
+            <h2 className="text-5xl font-bold mt-4">
+              Explore Our Expertise
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+
+            {/* Tax */}
+            <div
+              id="tax-details"
+              className="bg-white rounded-3xl p-8 shadow-xl hover:-translate-y-2 transition"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-[#334155] text-white flex items-center justify-center mb-6">
+                <Calculator size={28} />
+              </div>
+
+              <h3 className="text-2xl font-bold mb-4">
+                Tax Filing & Compliance
+              </h3>
+
+              <p className="text-gray-600 leading-relaxed">
+                Complete support for income tax filing, GST compliance,
+                document verification, and accurate submissions handled
+                by experienced professionals.
+              </p>
+            </div>
+
+            {/* Registration */}
+            <div
+              id="registration-details"
+              className="bg-white rounded-3xl p-8 shadow-xl hover:-translate-y-2 transition"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-[#334155] text-white flex items-center justify-center mb-6">
+                <Building2 size={28} />
+              </div>
+
+              <h3 className="text-2xl font-bold mb-4">
+                Business Registration
+              </h3>
+
+              <p className="text-gray-600 leading-relaxed">
+                Fast startup registration, MSME setup, GST registration,
+                and complete documentation support to launch your business
+                confidently.
+              </p>
+            </div>
+
+            {/* Advisory */}
+            <div
+              id="advisory-details"
+              className="bg-white rounded-3xl p-8 shadow-xl hover:-translate-y-2 transition"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-[#334155] text-white flex items-center justify-center mb-6">
+                <TrendingUp size={28} />
+              </div>
+
+              <h3 className="text-2xl font-bold mb-4">
+                Financial Advisory
+              </h3>
+
+              <p className="text-gray-600 leading-relaxed">
+                Strategic accounting support, bookkeeping, financial
+                planning, and expert advisory services for long-term
+                business growth.
+              </p>
+            </div>
+
+          </div>
         </div>
       </section>
 
@@ -273,6 +410,91 @@ const Home = () => {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* CONSULTATION SECTION */}
+      <section
+        id="consultation"
+        ref={consultationSectionRef}
+        className="py-20 bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#334155] text-white"
+      >
+        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-14 items-center">
+
+          {/* Left Side */}
+          <div>
+            <p className="uppercase tracking-[0.3em] text-[#D4AF37] font-semibold mb-4">
+              Expert Consultation
+            </p>
+
+            <h2 className="text-4xl md:text-5xl font-bold leading-tight">
+              Professional Financial Consultation Tailored For You
+            </h2>
+
+            <p className="mt-6 text-lg text-slate-200 leading-relaxed">
+              Get personalized guidance from experienced financial consultants for
+              tax planning, GST compliance, business registration, accounting
+              support, and financial growth strategies. Whether you're an
+              individual, freelancer, startup, or business owner, we help you make
+              informed financial decisions with confidence.
+            </p>
+
+            <div className="mt-8 grid sm:grid-cols-2 gap-4">
+              {[
+                "One-on-One Expert Guidance",
+                "Tax Saving Strategies",
+                "Business Compliance Support",
+                "Quick & Reliable Solutions",
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className="bg-white/10 backdrop-blur-md p-4 rounded-2xl font-medium"
+                >
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Side */}
+          <div className="bg-white text-[#1E293B] rounded-3xl p-10 shadow-2xl">
+            <div className="w-16 h-16 rounded-2xl bg-[#334155] text-[#D4AF37] flex items-center justify-center mb-6">
+              <PhoneCall size={34} />
+            </div>
+
+            <h3 className="text-3xl font-bold mb-4">
+              Book Your Consultation Today
+            </h3>
+
+            <p className="text-gray-600 leading-relaxed mb-8">
+              Speak directly with our financial experts and get practical solutions
+              for your tax, accounting, or business needs.
+            </p>
+
+            <div className="space-y-4">
+              <div className="bg-[#F8FAFC] p-4 rounded-2xl">
+                GST & Tax Consultation
+              </div>
+
+              <div className="bg-[#F8FAFC] p-4 rounded-2xl">
+                Business Registration Guidance
+              </div>
+
+              <div className="bg-[#F8FAFC] p-4 rounded-2xl">
+                Financial Planning Support
+              </div>
+            </div>
+
+            <button
+              ref={scheduleButtonRef}
+              onClick={() => setShowConsultation(true)}
+              className="mt-8 w-full px-8 py-4 bg-[#D4AF37] text-black font-bold rounded-2xl hover:scale-[1.02] transition flex items-center justify-center gap-3 cursor-pointer"
+            >
+              Schedule Consultation
+              <ArrowRight />
+            </button>
+          </div>
+
         </div>
       </section>
 
@@ -383,109 +605,109 @@ const Home = () => {
 
       {/* FOOTER */}
       <footer className="bg-[#020617] text-white">
-  <div className="max-w-7xl mx-auto px-6 py-20">
-    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div className="max-w-7xl mx-auto px-6 py-20">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
 
-      <div>
-        <h2 className="text-3xl font-bold text-[#D4AF37] mb-5">
-          FinConsult
-        </h2>
+            <div>
+              <h2 className="text-3xl font-bold text-[#D4AF37] mb-5">
+                FinConsult
+              </h2>
 
-        <p className="text-slate-300 leading-relaxed">
-          Trusted financial consultancy offering expert GST filing, income tax
-          solutions, accounting support, and business registration services.
-        </p>
+              <p className="text-slate-300 leading-relaxed">
+                Trusted financial consultancy offering expert GST filing, income tax
+                solutions, accounting support, and business registration services.
+              </p>
 
-        <div className="flex gap-4 mt-8">
-          {[FaFacebookF, FaInstagram, FaLinkedinIn].map((Icon, i) => (
-            <button
-              key={i}
-              className="w-11 h-11 rounded-xl bg-white/10 hover:bg-[#D4AF37] hover:text-black transition-all duration-300 flex items-center justify-center"
-            >
-              <Icon size={18} />
-            </button>
-          ))}
-        </div>
-      </div>
+              <div className="flex gap-4 mt-8">
+                {[FaFacebookF, FaInstagram, FaLinkedinIn].map((Icon, i) => (
+                  <button
+                    key={i}
+                    className="w-11 h-11 rounded-xl bg-white/10 hover:bg-[#D4AF37] hover:text-black transition-all duration-300 flex items-center justify-center"
+                  >
+                    <Icon size={18} />
+                  </button>
+                ))}
+              </div>
+            </div>
 
-      <div>
-        <h3 className="text-xl font-semibold mb-6 text-[#D4AF37]">
-          Quick Links
-        </h3>
+            <div>
+              <h3 className="text-xl font-semibold mb-6 text-[#D4AF37]">
+                Quick Links
+              </h3>
 
-        <div className="space-y-4 text-slate-300">
-          {["Home", "About Us", "Services", "FAQ", "Contact"].map((item) => (
-            <p
-              key={item}
-              className="hover:text-white cursor-pointer transition"
-            >
-              {item}
-            </p>
-          ))}
-        </div>
-      </div>
+              <div className="space-y-4 text-slate-300">
+                {["Home", "About Us", "Services", "FAQ", "Contact"].map((item) => (
+                  <p
+                    key={item}
+                    className="hover:text-white cursor-pointer transition"
+                  >
+                    {item}
+                  </p>
+                ))}
+              </div>
+            </div>
 
-      <div>
-        <h3 className="text-xl font-semibold mb-6 text-[#D4AF37]">
-          Our Services
-        </h3>
+            <div>
+              <h3 className="text-xl font-semibold mb-6 text-[#D4AF37]">
+                Our Services
+              </h3>
 
-        <div className="space-y-4 text-slate-300">
-          {[
-            "GST Filing",
-            "Income Tax Filing",
-            "Business Registration",
-            "Accounting Support",
-          ].map((item) => (
-            <p
-              key={item}
-              className="hover:text-white cursor-pointer transition"
-            >
-              {item}
-            </p>
-          ))}
-        </div>
-      </div>
+              <div className="space-y-4 text-slate-300">
+                {[
+                  "GST Filing",
+                  "Income Tax Filing",
+                  "Business Registration",
+                  "Accounting Support",
+                ].map((item) => (
+                  <p
+                    key={item}
+                    className="hover:text-white cursor-pointer transition"
+                  >
+                    {item}
+                  </p>
+                ))}
+              </div>
+            </div>
 
-      <div>
-        <h3 className="text-xl font-semibold mb-6 text-[#D4AF37]">
-          Contact Info
-        </h3>
+            <div>
+              <h3 className="text-xl font-semibold mb-6 text-[#D4AF37]">
+                Contact Info
+              </h3>
 
-        <div className="space-y-5 text-slate-300">
-          <div className="flex gap-4 items-start">
-            <MapPin className="text-[#D4AF37] mt-1" size={20} />
-            <p>Hyderabad, India</p>
+              <div className="space-y-5 text-slate-300">
+                <div className="flex gap-4 items-start">
+                  <MapPin className="text-[#D4AF37] mt-1" size={20} />
+                  <p>Hyderabad, India</p>
+                </div>
+
+                <div className="flex gap-4 items-center">
+                  <Phone className="text-[#D4AF37]" size={20} />
+                  <p>+91 98765 43210</p>
+                </div>
+
+                <div className="flex gap-4 items-center">
+                  <Mail className="text-[#D4AF37]" size={20} />
+                  <p>support@finconsult.com</p>
+                </div>
+              </div>
+            </div>
+
           </div>
 
-          <div className="flex gap-4 items-center">
-            <Phone className="text-[#D4AF37]" size={20} />
-            <p>+91 98765 43210</p>
-          </div>
+          <div className="border-t border-white/10 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-400 text-sm">
+            <p>© 2026 FinConsult. All rights reserved.</p>
 
-          <div className="flex gap-4 items-center">
-            <Mail className="text-[#D4AF37]" size={20} />
-            <p>support@finconsult.com</p>
+            <div className="flex gap-6">
+              <p className="hover:text-white cursor-pointer transition">
+                Privacy Policy
+              </p>
+              <p className="hover:text-white cursor-pointer transition">
+                Terms & Conditions
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-
-    </div>
-
-    <div className="border-t border-white/10 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-400 text-sm">
-      <p>© 2026 FinConsult. All rights reserved.</p>
-
-      <div className="flex gap-6">
-        <p className="hover:text-white cursor-pointer transition">
-          Privacy Policy
-        </p>
-        <p className="hover:text-white cursor-pointer transition">
-          Terms & Conditions
-        </p>
-      </div>
-    </div>
-  </div>
-</footer>
+      </footer>
 
     </div>
   );
