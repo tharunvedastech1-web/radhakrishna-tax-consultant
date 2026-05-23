@@ -9,6 +9,7 @@ import { useDropzone } from "react-dropzone";
 import {
   ArrowLeft,
   CheckCircle2,
+  AlertTriangle,
   Phone,
   Calendar,
   Clock3,
@@ -50,8 +51,11 @@ const ScheduleConsultationPage = ({ onBack }) => {
   const [selectedTime, setSelectedTime] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [clientTypeOpen, setClientTypeOpen] = useState(false);
   const [consultationTypeOpen, setConsultationTypeOpen] = useState(false);
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [showValidationModal, setShowValidationModal] = useState(false);
 
   const detailsSectionRef = useRef(null);
 
@@ -95,7 +99,18 @@ const ScheduleConsultationPage = ({ onBack }) => {
   ];
 
   const onDrop = useCallback((acceptedFiles) => {
-    setUploadedFiles(acceptedFiles);
+    setUploadedFiles((prevFiles) => {
+      const newFiles = acceptedFiles.filter(
+        (newFile) =>
+          !prevFiles.some(
+            (existingFile) =>
+              existingFile.name === newFile.name &&
+              existingFile.size === newFile.size
+          )
+      );
+
+      return [...prevFiles, ...newFiles];
+    });
   }, []);
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -110,7 +125,57 @@ const ScheduleConsultationPage = ({ onBack }) => {
     });
   };
 
+  const validateForm = () => {
+    const errors = [];
+
+    if (!formData.fullName.trim()) errors.push("Full Name");
+    if (!formData.email.trim()) errors.push("Email Address");
+    if (!formData.mobile.trim()) errors.push("Mobile Number");
+    if (!formData.city.trim()) errors.push("City");
+    if (!formData.clientType) errors.push("Client Type");
+    if (!formData.consultationType) errors.push("Consultation Type");
+    if (!formData.description.trim()) errors.push("Requirement Description");
+    if (!formData.preferredDate) errors.push("Preferred Date");
+    if (!selectedTime) errors.push("Time Slot");
+
+    return errors;
+  };
+
   const nextStep = () => {
+    let errors = [];
+
+    if (currentStep === 1) {
+      if (!formData.fullName.trim()) errors.push("Full Name");
+      if (!formData.email.trim()) errors.push("Email Address");
+      if (!formData.mobile.trim()) errors.push("Mobile Number");
+      if (!formData.city.trim()) errors.push("City");
+      if (!formData.clientType) errors.push("Client Type");
+    }
+
+    if (currentStep === 2) {
+      if (!formData.consultationType)
+        errors.push("Consultation Type");
+
+      if (!formData.description.trim())
+        errors.push("Requirement Description");
+    }
+
+    if (currentStep === 3) {
+      if (!formData.preferredDate)
+        errors.push("Preferred Date");
+
+      if (!selectedTime)
+        errors.push("Time Slot");
+    }
+
+    if (errors.length > 0) {
+      if (!showValidationModal) {
+        setValidationErrors(errors);
+        setShowValidationModal(true);
+      }
+      return;
+    }
+
     if (currentStep < 5) {
       setCurrentStep((prev) => prev + 1);
     }
@@ -122,55 +187,20 @@ const ScheduleConsultationPage = ({ onBack }) => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
+    const errors = validateForm();
 
-    if (!formData.fullName.trim()) {
-      alert("Please enter full name");
-      return;
-    }
-
-    if (!formData.email.trim()) {
-      alert("Please enter email");
-      return;
-    }
-
-    if (!formData.mobile.trim()) {
-      alert("Please enter mobile number");
-      return;
-    }
-
-    if (!formData.city.trim()) {
-      alert("Please enter city");
-      return;
-    }
-
-    if (!formData.clientType) {
-      alert("Please select client type");
-      return;
-    }
-
-    if (!formData.consultationType) {
-      alert("Please select consultation type");
-      return;
-    }
-
-    if (!formData.description.trim()) {
-      alert("Please enter description");
-      return;
-    }
-
-    if (!formData.preferredDate) {
-      alert("Please select preferred date");
-      return;
-    }
-
-    if (!selectedTime) {
-      alert("Please select time slot");
+    if (errors.length > 0) {
+      if (!showValidationModal) {
+        setValidationErrors(errors);
+        setShowValidationModal(true);
+      }
       return;
     }
 
     try {
+      setIsSubmitting(true);
+
       const formPayload = new FormData();
 
       formPayload.append("fullName", formData.fullName);
@@ -199,16 +229,20 @@ const ScheduleConsultationPage = ({ onBack }) => {
       const data = await response.json();
 
       if (data.success) {
+        setIsSubmitting(false);
         setIsSubmitted(true);
       } else {
         alert("Submission failed");
       }
 
     } catch (error) {
+      setIsSubmitting(false);
       console.error(error);
       alert("Something went wrong");
     }
   };
+
+
 
   if (isSubmitted) {
     return (
@@ -246,6 +280,7 @@ const ScheduleConsultationPage = ({ onBack }) => {
     "Individual",
     "Salaried Employee",
     "Freelancer",
+    "Professionals",
     "Business Owner",
     "Startup Founder",
     "Company",
@@ -259,10 +294,63 @@ const ScheduleConsultationPage = ({ onBack }) => {
     "Startup Registration Consultation",
     "Compliance Consultation",
     "Accounting Consultation",
+    "Professional Tax Consultation",
   ];
 
   return (
     <div className="min-h-screen bg-[#F6F4EF] text-[#1E293B] overflow-hidden">
+      
+      <AnimatePresence>
+  {showValidationModal && (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center px-4"
+    >
+      <motion.div
+        initial={{ scale: 0.85, opacity: 0, y: 30 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.85, opacity: 0 }}
+        className="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-8"
+      >
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center">
+            <AlertTriangle className="text-red-500" size={28} />
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-bold text-[#1E293B]">
+              Missing Information
+            </h2>
+
+            <p className="text-gray-500">
+              Please complete the following fields
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-3 max-h-[300px] overflow-y-auto">
+          {validationErrors.map((error, index) => (
+            <div
+              key={index}
+              className="bg-[#FFF9E8] border border-[#D4AF37]/30 rounded-2xl px-4 py-3 font-medium"
+            >
+              {error}
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={() => setShowValidationModal(false)}
+          className="mt-8 w-full py-4 bg-[#D4AF37] rounded-2xl font-bold hover:scale-[1.02] transition"
+        >
+          Got It
+        </button>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
 
       {/* PREMIUM CONCIERGE HERO */}
       <section className="relative bg-gradient-to-br from-[#0B1324] via-[#14213D] to-[#1E2E45] text-white px-6 py-16 overflow-hidden">
@@ -450,7 +538,7 @@ const ScheduleConsultationPage = ({ onBack }) => {
           </div>
 
           {/* RIGHT FORM */}
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white p-10 sticky top-6">
+          <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white p-10 sticky top-6 min-w-0 overflow-hidden">
             {/* Progress */}
             <div className="mb-10">
               <div className="flex justify-between gap-2 flex-wrap">
@@ -476,7 +564,7 @@ const ScheduleConsultationPage = ({ onBack }) => {
               </div>
             </div>
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={(e) => e.preventDefault()}>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentStep}
@@ -707,38 +795,46 @@ const ScheduleConsultationPage = ({ onBack }) => {
                         Upload Documents
                       </h2>
 
-                      <div
-                        {...getRootProps()}
-                        className="border-2 border-dashed border-[#D4AF37] rounded-3xl p-10 text-center cursor-pointer hover:bg-[#FFF9E8] transition"
-                      >
-                        <input {...getInputProps()} />
-                        <Upload
-                          className="mx-auto mb-4 text-[#D4AF37]"
-                          size={40}
-                        />
+                      <div className="space-y-5">
+                        <div
+                          {...getRootProps()}
+                          className="border-2 border-dashed border-[#D4AF37] rounded-3xl h-[260px] w-full flex flex-col items-center justify-center text-center cursor-pointer hover:bg-[#FFF9E8] transition overflow-hidden"
+                        >
+                          <input {...getInputProps()} />
 
-                        <p className="text-xl font-semibold">
-                          Drag & Drop Documents
-                        </p>
+                          <Upload
+                            className="mb-4 text-[#D4AF37]"
+                            size={40}
+                          />
 
-                        <p className="text-gray-500 mt-2">
-                          PAN / Aadhaar / GST / Form16 / Bank Statements
-                        </p>
-                      </div>
+                          <p className="text-xl font-semibold">
+                            Drag & Drop Documents
+                          </p>
 
-                      {uploadedFiles.length > 0 && (
-                        <div className="space-y-3">
-                          {uploadedFiles.map((file, i) => (
-                            <div
-                              key={i}
-                              className="bg-[#F8FAFC] rounded-2xl p-4 flex items-center gap-3"
-                            >
-                              <FileText className="text-[#D4AF37]" />
-                              <span>{file.name}</span>
-                            </div>
-                          ))}
+                          <p className="text-gray-500 mt-2">
+                            PAN / Aadhaar / GST / Form16 / Bank Statements
+                          </p>
                         </div>
-                      )}
+
+                        {uploadedFiles.length > 0 && (
+                          <div className="max-h-[180px] overflow-y-auto space-y-3 w-full min-w-0">
+                            {uploadedFiles.map((file, i) => (
+                              <div
+                                key={i}
+                                className="bg-[#F8FAFC] rounded-2xl p-4 flex items-center gap-3 w-full min-w-0 overflow-hidden"
+                              >
+                                <FileText className="text-[#D4AF37] shrink-0" />
+
+                                <div className="flex-1 min-w-0">
+                                  <span className="block truncate text-sm">
+                                    {file.name}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </>
                   )}
 
@@ -797,10 +893,12 @@ const ScheduleConsultationPage = ({ onBack }) => {
                   </button>
                 ) : (
                   <button
-                    type="submit"
-                    className="px-8 py-3 rounded-2xl bg-[#D4AF37] font-bold flex items-center gap-2"
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                    className="px-8 py-3 rounded-2xl bg-[#D4AF37] font-bold flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                   >
-                    Confirm Booking
+                    {isSubmitting ? "Processing..." : "Confirm Booking"}
                     <ArrowRight size={18} />
                   </button>
                 )}

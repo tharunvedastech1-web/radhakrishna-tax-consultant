@@ -8,7 +8,6 @@ import {
   Users,
   Landmark,
   CheckCircle2,
-  Star,
   PhoneCall,
   Calculator,
   ClipboardCheck,
@@ -16,6 +15,7 @@ import {
   Mail,
   MapPin,
   Phone,
+  Plus,
 } from "lucide-react";
 
 import {
@@ -24,11 +24,18 @@ import {
   FaLinkedinIn,
 } from "react-icons/fa";
 
+import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
+
 
 const Home = () => {
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showConsultation, setShowConsultation] = useState(false);
+  const [openFaq, setOpenFaq] = useState(null);
+  const [counts, setCounts] = useState([0, 0, 0, 0]);
+  const servicesRef = useRef(null);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const [testimonialIndex, setTestimonialIndex] = useState(0);
 
   const consultationSectionRef = useRef(null);
   const scheduleButtonRef = useRef(null);
@@ -65,6 +72,41 @@ const Home = () => {
     },
   ];
 
+  const services = [
+    {
+      icon: <FileText size={24} />,
+      title: "GST Filing & Compliance",
+      desc: "Timely GST returns, registration, and compliance support for businesses.",
+      stat: 40000,
+      suffix: "+",
+      label: "GST Returns Filed",
+    },
+    {
+      icon: <Calculator size={24} />,
+      title: "Income Tax Filing",
+      desc: "Professional tax filing services for salaried employees, freelancers, and businesses.",
+      stat: 15000,
+      suffix: "+",
+      label: "Tax Filings Completed",
+    },
+    {
+      icon: <Building2 size={24} />,
+      title: "Business Registration",
+      desc: "Fast startup, MSME, GST, and company registration assistance.",
+      stat: 500,
+      suffix: "+",
+      label: "Businesses Registered",
+    },
+    {
+      icon: <ClipboardCheck size={24} />,
+      title: "Accounting Support",
+      desc: "Accurate bookkeeping, documentation, and financial records management.",
+      stat: 98,
+      suffix: "%",
+      label: "Client Satisfaction",
+    },
+  ];
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
@@ -72,6 +114,54 @@ const Home = () => {
 
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTestimonialIndex((prev) => (prev === 2 ? 0 : prev + 1));
+    }, 5000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated) {
+          setHasAnimated(true);
+
+          services.forEach((service, index) => {
+            let start = 0;
+            const end = service.stat;
+            const duration = 1800;
+            const increment = end / 60;
+
+            const timer = setInterval(() => {
+              start += increment;
+
+              if (start >= end) {
+                start = end;
+                clearInterval(timer);
+              }
+
+              setCounts((prev) => {
+                const updated = [...prev];
+                updated[index] = Math.floor(start);
+                return updated;
+              });
+            }, duration / 60);
+          });
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    if (servicesRef.current) {
+      observer.observe(servicesRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasAnimated]);
+
 
   const scrollToScheduleButton = () => {
     const button = scheduleButtonRef.current;
@@ -106,28 +196,6 @@ const Home = () => {
   //   }
   // }, []);
 
-  const services = [
-    {
-      icon: <FileText size={28} />,
-      title: "GST Filing & Compliance",
-      desc: "Timely GST returns, registration, and compliance support for businesses.",
-    },
-    {
-      icon: <Calculator size={28} />,
-      title: "Income Tax Filing",
-      desc: "Professional tax filing services for salaried employees, freelancers, and businesses.",
-    },
-    {
-      icon: <Building2 size={28} />,
-      title: "Business Registration",
-      desc: "Fast startup, MSME, GST, and company registration assistance.",
-    },
-    {
-      icon: <ClipboardCheck size={28} />,
-      title: "Accounting Support",
-      desc: "Accurate bookkeeping, documentation, and financial records management.",
-    },
-  ];
 
   const whoWeHelp = [
     "Salaried Professionals",
@@ -145,18 +213,96 @@ const Home = () => {
     "Confirmation & Support",
   ];
 
+  const testimonials = [
+    {
+      name: "Rahul S.",
+      role: "Business Owner",
+      review: "Excellent GST support. Fast processing and very professional guidance.",
+      avatar: "RS",
+      rating: 4.5,
+    },
+    {
+      name: "Priya K.",
+      role: "Freelancer",
+      review: "Income tax filing became completely stress-free. Very smooth process.",
+      avatar: "PK",
+      rating: 5,
+    },
+    {
+      name: "Arjun M.",
+      role: "Startup Founder",
+      review: "Business registration was completed quickly with proper documentation.",
+      avatar: "AM",
+      rating: 4,
+    },
+    {
+      name: "Sneha R.",
+      role: "Entrepreneur",
+      review: "Very reliable accounting support. Professional communication throughout.",
+      avatar: "SR",
+      rating: 4.5,
+    },
+    {
+      name: "Kiran P.",
+      role: "Consultant",
+      review: "Clear tax guidance and excellent support team. Highly recommended.",
+      avatar: "KP",
+      rating: 5,
+    },
+    {
+      name: "Meena D.",
+      role: "Small Business Owner",
+      review: "Their compliance handling saved us a lot of time and confusion.",
+      avatar: "MD",
+      rating: 4,
+    },
+    {
+      name: "Vikram T.",
+      role: "Retail Business Owner",
+      review: "Quick response and excellent GST filing assistance every single time.",
+      avatar: "VT",
+      rating: 4.5,
+    },
+    {
+      name: "Anjali N.",
+      role: "Working Professional",
+      review: "Tax filing process was effortless. Great support and timely updates.",
+      avatar: "AN",
+      rating: 5,
+    },
+    {
+      name: "Ramesh C.",
+      role: "Startup Co-Founder",
+      review: "Professional team with accurate accounting and registration guidance.",
+      avatar: "RC",
+      rating: 4.5,
+    },
+  ];
+
   const faqs = [
     {
       q: "What documents are needed for GST filing?",
-      a: "Basic business registration details, invoices, and purchase records.",
+      a: "Basic business registration details, invoices, GST login credentials, and purchase records are generally required.",
     },
     {
-      q: "Do you offer online consultation?",
-      a: "Yes, we provide complete online support and consultation.",
+      q: "Do you provide online consultation?",
+      a: "Yes, we provide complete online consultation and support for tax filing, GST compliance, and business registration.",
     },
     {
       q: "How long does company registration take?",
-      a: "Depending on requirements, registration usually takes a few working days.",
+      a: "Depending on documentation and approval timelines, registration usually takes a few working days.",
+    },
+    {
+      q: "Do you help with income tax filing for salaried employees?",
+      a: "Yes, we assist salaried employees, freelancers, and business owners with accurate income tax filing.",
+    },
+    {
+      q: "Is my financial information secure?",
+      a: "Absolutely. All your financial documents and information are handled securely and confidentially.",
+    },
+    {
+      q: "Do you provide accounting support for businesses?",
+      a: "Yes, we offer bookkeeping, accounting assistance, compliance documentation, and financial support for businesses.",
     },
   ];
 
@@ -385,28 +531,58 @@ const Home = () => {
       </section>
 
       {/* SERVICES */}
-      <section className="py-20">
+      <section className="py-20" ref={servicesRef}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-14">
             <p className="uppercase tracking-[0.3em] text-[#D4AF37] font-semibold">
               Our Services
             </p>
+
             <h2 className="text-5xl font-bold mt-4">
               Professional Financial Services
             </h2>
+
+            <p className="mt-5 text-gray-600 max-w-2xl mx-auto text-lg">
+              Trusted financial solutions for individuals, startups, and businesses.
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-6">
             {services.map((service, i) => (
               <div
                 key={i}
-                className="bg-white p-8 rounded-3xl shadow-xl hover:-translate-y-2 transition"
+                className="bg-white rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-6"
               >
-                <div className="w-16 h-16 rounded-2xl bg-[#334155] text-white flex items-center justify-center mb-6">
-                  {service.icon}
+                {/* TOP SECTION */}
+                <div className="flex items-start justify-between mb-5">
+                  {/* ICON */}
+                  <div className="w-14 h-14 rounded-2xl bg-[#334155] text-white flex items-center justify-center shrink-0">
+                    {service.icon}
+                  </div>
+
+                  {/* COUNTER */}
+                  <div className="text-right">
+                    <h3 className="text-3xl md:text-4xl font-bold text-[#D4AF37] leading-none">
+                      {counts[i].toLocaleString()}
+                      {service.suffix}
+                    </h3>
+
+                    <p className="text-sm text-gray-500 mt-2 font-medium">
+                      {service.label}
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-2xl font-bold mb-4">{service.title}</h3>
-                <p className="text-gray-600">{service.desc}</p>
+
+                {/* CONTENT */}
+                <div>
+                  <h3 className="text-xl md:text-2xl font-bold mb-3 text-[#1E293B]">
+                    {service.title}
+                  </h3>
+
+                  <p className="text-gray-600 leading-relaxed text-base md:text-lg">
+                    {service.desc}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
@@ -519,20 +695,86 @@ const Home = () => {
         </div>
       </section>
 
-      {/* TESTIMONIAL */}
-      <section className="py-20">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="bg-[#1E293B] text-white rounded-3xl p-12 text-center shadow-2xl">
-            <div className="flex justify-center gap-2 mb-6">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} fill="currentColor" className="text-[#D4AF37]" />
+      {/* TESTIMONIALS */}
+      <section className="py-20 bg-[#F6F4EF]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <p className="uppercase tracking-[0.3em] text-[#D4AF37] font-semibold">
+              Client Reviews
+            </p>
+
+            <h2 className="text-5xl font-bold mt-4 text-[#1E293B]">
+              What Our Clients Say
+            </h2>
+          </div>
+
+          <div className="overflow-hidden relative">
+            <div
+              className="flex transition-transform duration-700 ease-in-out"
+              style={{
+                transform: `translateX(-${testimonialIndex * 100}%)`,
+              }}
+            >
+              {[0, 1, 2].map((slide) => (
+                <div key={slide} className="min-w-full grid md:grid-cols-3 gap-6">
+                  {testimonials
+                    .slice(slide * 3, slide * 3 + 3)
+                    .map((testimonial, i) => (
+                      <div
+                        key={i}
+                        className="bg-white rounded-3xl shadow-lg p-8 hover:shadow-xl transition"
+                      >
+                        <div className="flex items-center gap-4 mb-5">
+                          <div className="w-14 h-14 rounded-full bg-[#334155] text-white font-bold flex items-center justify-center">
+                            {testimonial.avatar}
+                          </div>
+
+                          <div>
+                            <h3 className="font-bold text-lg">
+                              {testimonial.name}
+                            </h3>
+
+                            <p className="text-sm text-gray-500">
+                              {testimonial.role}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-1 mb-4 text-[#D4AF37] text-lg">
+                          {[1, 2, 3, 4, 5].map((star) => {
+                            if (testimonial.rating >= star) {
+                              return <FaStar key={star} />;
+                            }
+
+                            if (testimonial.rating >= star - 0.5) {
+                              return <FaStarHalfAlt key={star} />;
+                            }
+
+                            return <FaRegStar key={star} className="text-gray-300" />;
+                          })}
+                          
+                        </div>
+                        <p className="text-gray-600 leading-relaxed">
+                          "{testimonial.review}"
+                        </p>
+                      </div>
+                    ))}
+                </div>
               ))}
             </div>
-            <p className="text-2xl leading-relaxed">
-              “Professional, responsive, and highly reliable financial support.
-              Filing taxes has never been this simple.”
-            </p>
-            <p className="mt-6 font-semibold">Happy Client</p>
+
+            <div className="flex justify-center gap-3 mt-10">
+              {[0, 1, 2].map((i) => (
+                <button
+                  key={i}
+                  onClick={() => setTestimonialIndex(i)}
+                  className={`transition-all ${testimonialIndex === i
+                    ? "w-10 h-3 bg-[#D4AF37] rounded-full"
+                    : "w-3 h-3 bg-gray-400 rounded-full"
+                    }`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -540,20 +782,54 @@ const Home = () => {
       {/* FAQ */}
       <section className="py-20 bg-white">
         <div className="max-w-5xl mx-auto px-6">
-          <h2 className="text-5xl font-bold text-center mb-14">
+          <h2 className="text-5xl font-bold text-center mb-14 text-[#1E293B]">
             Frequently Asked Questions
           </h2>
 
-          <div className="space-y-6">
-            {faqs.map((faq, i) => (
-              <div
-                key={i}
-                className="bg-[#F8FAFC] p-8 rounded-3xl shadow-lg"
-              >
-                <h3 className="text-xl font-bold mb-3">{faq.q}</h3>
-                <p className="text-gray-600">{faq.a}</p>
-              </div>
-            ))}
+          <div className="space-y-4">
+            {faqs.map((faq, i) => {
+              const isOpen = openFaq === i;
+
+              return (
+                <div
+                  key={i}
+                  className="bg-[#F8FAFC] rounded-3xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300"
+                >
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : i)}
+                    className="w-full flex items-center justify-between px-8 py-7 text-left cursor-pointer"
+                  >
+                    <span className="text-lg md:text-xl font-bold text-[#1E293B]">
+                      {faq.q}
+                    </span>
+
+                    <div
+                      className={`transition-transform duration-300 ${isOpen ? "rotate-45" : ""
+                        }`}
+                    >
+                      <Plus
+                        size={32}
+                        className="text-[#334155]"
+                        strokeWidth={1.8}
+                      />
+                    </div>
+                  </button>
+
+                  <div
+                    className={`grid transition-all duration-500 ease-in-out ${isOpen
+                      ? "grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0"
+                      }`}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="px-8 pb-8 text-gray-600 leading-relaxed text-base">
+                        {faq.a}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
