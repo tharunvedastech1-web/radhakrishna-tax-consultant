@@ -3,6 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 const contactRoutes = require("./routes/contactRoutes");
+const consultationRoutes = require("./routes/consultationRoutes");
 const connectDB = require("./config/db");
 
 const app = express();
@@ -13,6 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/contact", contactRoutes);
+app.use("/api/consultation", consultationRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend is running");
