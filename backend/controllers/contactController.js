@@ -13,19 +13,20 @@ const submitContactForm = async (req, res) => {
       message,
     });
 
-    await transporter.sendMail({
+    transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: "tharunvedastech1@gmail.com",
       subject: "New Contact Form Enquiry",
       html: `
-        <h2>New Enquiry Received</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        <p><strong>Service:</strong> ${service}</p>
-        <p><strong>Message:</strong> ${message}</p>
-      `,
-    });
+    <h2>New Enquiry Received</h2>
+    <p><strong>Name:</strong> ${name}</p>
+    <p><strong>Email:</strong> ${email}</p>
+    <p><strong>Phone:</strong> ${phone}</p>
+    <p><strong>Service:</strong> ${service}</p>
+    <p><strong>Message:</strong> ${message}</p>
+  `,
+    }).catch(err => console.log("Mail error:", err));
+
 
     res.status(201).json({
       success: true,

@@ -34,7 +34,7 @@ const submitConsultationForm = async (req, res) => {
       documentUrl: documentUrls,
     });
 
-    await transporter.sendMail({
+    transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: "tharunvedastech1@gmail.com",
       subject: "New Consultation Booking",
@@ -53,11 +53,11 @@ const submitConsultationForm = async (req, res) => {
         <p><strong>Description:</strong> ${description}</p>
       `,
 
-      attachments: req.files.map((file) => ({
+      attachments: req.files?.map((file) => ({
         filename: file.originalname,
         path: file.path,
-      })),
-    });
+      })) || [],
+    }).catch((err) => console.log("Mail error:", err));
 
     res.status(201).json({
       success: true,
