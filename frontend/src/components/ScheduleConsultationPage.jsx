@@ -219,7 +219,7 @@ const ScheduleConsultationPage = ({ onBack }) => {
       });
 
       const response = await fetch(
-        "http://localhost:5000/api/consultation",
+        "https://radhakrishna-backend.onrender.com/api/consultation",
         {
           method: "POST",
           body: formPayload,
