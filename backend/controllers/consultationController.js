@@ -57,7 +57,13 @@ const submitConsultationForm = async (req, res) => {
         filename: file.originalname,
         path: file.path,
       })) || [],
-    }).catch((err) => console.log("Mail error:", err));
+    })
+      .then((info) => {
+        console.log("MAIL SENT:", info.response);
+      })
+      .catch((err) => {
+        console.log("MAIL ERROR:", err);
+      });
 
     res.status(201).json({
       success: true,
