@@ -1,18 +1,18 @@
-const nodemailer = require("nodemailer");
+app.get("/test-mail", async (req, res) => {
+  console.log("TEST MAIL ROUTE HIT");
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
-  debug: true,
-  logger: true,
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_USER,
+      to: "tharunvedastech1@gmail.com",
+      subject: "Render Test Mail",
+      text: "Testing email from Render backend",
+    });
+
+    console.log("MAIL SENT:", info);
+    res.send("Mail sent successfully");
+  } catch (err) {
+    console.log("MAIL ERROR FULL:", err);
+    res.status(500).send(err.message);
+  }
 });
-
-module.exports = transporter;
