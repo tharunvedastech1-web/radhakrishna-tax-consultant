@@ -1,18 +1,14 @@
-app.get("/test-mail", async (req, res) => {
-  console.log("TEST MAIL ROUTE HIT");
+const nodemailer = require("nodemailer");
 
-  try {
-    const info = await transporter.sendMail({
-      from: process.env.SMTP_USER,
-      to: "tharunvedastech1@gmail.com",
-      subject: "Render Test Mail",
-      text: "Testing email from Render backend",
-    });
-
-    console.log("MAIL SENT:", info);
-    res.send("Mail sent successfully");
-  } catch (err) {
-    console.log("MAIL ERROR FULL:", err);
-    res.status(500).send(err.message);
-  }
+const transporter = nodemailer.createTransport({
+  host: "smtp-relay.brevo.com",
+  port: 2525,
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+  connectionTimeout: 10000,
 });
+
+module.exports = transporter;
