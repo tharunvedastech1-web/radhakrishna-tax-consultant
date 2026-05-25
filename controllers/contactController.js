@@ -25,7 +25,13 @@ const submitContactForm = async (req, res) => {
     <p><strong>Service:</strong> ${service}</p>
     <p><strong>Message:</strong> ${message}</p>
   `,
-    }).catch(err => console.log("Mail error:", err));
+    })
+      .then((info) => {
+        console.log("MAIL SENT:", info.response);
+      })
+      .catch((err) => {
+        console.log("MAIL ERROR:", err);
+      });
 
 
     res.status(201).json({
